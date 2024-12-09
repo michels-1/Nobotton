@@ -43,6 +43,7 @@ cmd({
     pattern: "group",
     react: "🛡️",
     alias: ["groupset",'groupsettings'],
+    desc: desc1,
     category: "owner",
     use: '.group',
     filename: __filename
@@ -56,45 +57,39 @@ if (!isBotAdmins) return await reply(ADMINim)
 const sections = [{
 title: "Anti Link",
 rows: [{
-description: 'ON 📲',
-rowId: '.antilink on',
-title : "1"   
+title: 'ON 📲',
+rowId: '.antilink on'
 },
 {
-description: 'OFF 📴',
-rowId: '.antilink off',
-title : "2"   
+title: 'OFF 📴',
+rowId: '.antilink off'
 }
 ]},
 {
 title: "Anti Bad Words",
 rows: [{
-description: 'ON 📲',
-rowId: '.antibad on',
-title : "3"   
+title: 'ON 📲',
+rowId: '.antibad on'
 },
 {
-description: 'OFF 📴',
-rowId: '.antibad off',
-title : "4"   
+title: 'OFF 📴',
+rowId: '.antibad off'
 }
 ]},
 {
 title: "Anti Bots",
 rows: [{
-description: 'ON 📲',
-rowId: '.antibot on',
-title : "5"   
+title: 'ON 📲',
+rowId: '.antibot on'
 },
 {
-description: 'OFF 📴',
-rowId: '.antibot off',
-title : "6"   
+title: 'OFF 📴',
+rowId: '.antibot off'
 }
 ]},
 ]
 const listMessage = {
-text: `[🧚 ＱＵＥＥＮ -ＩＺＵＭＩ - ＭＤ 🧚]
+text: `┌───[🍭Zero-Two🍭]
 
      *GROUP SETTINGS*
 
@@ -104,7 +99,7 @@ title: '',
 buttonText: '*🔢 Reply below number*',
 sections
 }
-await conn.replyList(from, listMessage,{ quoted : mek })
+await conn.listMessage(from, listMessage,mek)
 } catch (e) {
 reply('*Error !!*')
 l(e)
@@ -115,6 +110,7 @@ cmd({
     pattern: "settings",
     react: "🛡️",
     alias: ["setting",'botsetting'],
+    desc: desc2,
     category: "owner",
     use: '.settings',
     filename: __filename
@@ -125,32 +121,28 @@ if (!isMe) return await reply(BOTOW)
 const sections = [{
 title: "Only Group",
 rows: [{
-description: 'ON 📲',
-rowId: '.antibad on',
-title : "1"   
+title: 'ON 📲',
+rowId: '.onlygroup on'
 },
 {
-description: 'OFF 📴',
-rowId: '.Only Group',
-title : "2"   
+title: 'OFF 📴',
+rowId: '.onlygroup off'
 }
 ]},
 {
-title: "Language",
+title: "Language 🗣️",
 rows: [{
-description: 'English 🇺🇸',
-rowId: '.lang EN',
-title : "3"   
+title: 'English 🇺🇸',
+rowId: '.lang EN'
 },
 {
-description: 'Sinhala 🇱🇰',
-rowId: '.lang SI',
-title : "4"   
+title: 'Sinhala 🇱🇰',
+rowId: '.lang SI'
 }
 ]}
 ]
 const listMessage = {
-text: `[🧚 ＱＵＥＥＮ -ＩＺＵＭＩ - ＭＤ 🧚]
+text: `┌───[🍭Zero-Two🍭]
 
      *BOT\'S SETTINGS*
 
@@ -160,7 +152,7 @@ title: '',
 buttonText: '*🔢 Reply below number*',
 sections
 }
-await conn.replyList(from, listMessage,{ quoted : mek })
+await conn.listMessage(from, listMessage,mek)
 } catch (e) {
 reply('*Error !!*')
 l(e)
@@ -171,6 +163,7 @@ cmd({
     pattern: "apply",
     react: "🛠️",
     alias: ["set",'input'],
+    desc: desc3,
     category: "owner",
     use: '.apply <data>',
     filename: __filename
@@ -182,58 +175,50 @@ if(!q) return await reply(tesadtag)
 const sections = [{
 title: "Max Upload Size",
 rows: [{
-description: 'DEFAULT 🎲',
-rowId: '.uploadsz 100',
-title: "1"
+title: 'DEFAULT 🎲',
+rowId: '.uploadsz 100'
 },
 {
-description: 'NEW 🌱',
-rowId: '.uploadsz ' + q,
-title: "2"
+title: 'NEW 🌱',
+rowId: '.uploadsz ' + q
 }
 ]},
 {
 title: "Alive Massage",
 rows: [{
-description: 'DEFAULT 🎲',
-rowId: '.alivemg default',
-title: "3"
+title: 'DEFAULT 🎲',
+rowId: '.alivemg default'
 },
 {
-description: 'NEW 🌱',
-rowId: '.alivemg ' + q,
-title: "4"
+title: 'NEW 🌱',
+rowId: '.alivemg ' + q
 }
 ]},
 {
 title: "Footer Text / Caption",
 rows: [{
-description: 'DEFAULT 🎲',
-rowId: '.footertxt ©ＱＵＥＥＮ -ＩＺＵＭＩ - ＭＤ',
-title: "5"
+title: 'DEFAULT 🎲',
+rowId: '.footertxt ©𝚉𝙴𝚁𝙾-𝚃𝚆𝙾 𝙼𝙳'
 },
 {
-description: 'NEW 🌱',
-rowId: '.footertxt ' + q,
-title: "6"
+title: 'NEW 🌱',
+rowId: '.footertxt ' + q
 }
 ]},
 {
 title: "Logo",
 rows: [{
-description: 'DEFAULT 🎲',
-rowId: '.setlogo https://telegra.ph/file/ba8ea739e63bf28c30b37.jpg',
-title: "7"
+title: 'DEFAULT 🎲',
+rowId: '.setlogo https://github.com/vihangayt0/ZeroTwo-Uploads/blob/main/ZERO-TWO.png?raw=true'
 },
 {
-description: 'NEW 🌱',
-rowId: '.setlogo ' + q,
-title: "8"
+title: 'NEW 🌱',
+rowId: '.setlogo ' + q
 }
 ]},
 ]
 const listMessage = {
-text: `[🧚 ＱＵＥＥＮ -ＩＺＵＭＩ - ＭＤ 🧚]
+text: `┌───[🍭Zero-Two🍭]
 
      *BOT\'S CONFIG*
 
@@ -243,7 +228,7 @@ title: '',
 buttonText: '*🔢 Reply below number*',
 sections
 }
-await conn.replyList(from, listMessage,{ quoted : mek })
+await conn.listMessage(from, listMessage,mek)
 } catch (e) {
 reply('*Error !!*')
 l(e)
