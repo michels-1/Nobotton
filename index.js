@@ -17,6 +17,7 @@ const util = require('util')
 const { sms,downloadMediaMessage } = require('./lib/msg')
 const axios = require('axios')
 const { File } = require('megajs')
+var { updateCMDStore, isbtnID, getCMDStore, getCmdForCmdId, connectdb, input, get, updb, updfb } = require("./lib/githubdb")
 const prefix = '.'
 
 const ownerNumber = ['94702940582']
@@ -39,6 +40,8 @@ const port = process.env.PORT || 8000;
 //=============================================
 
 async function connectToWA() {
+await connectdb();
+await updb();
 console.log("Connecting wa bot 🧬...");
 const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/')
 var { version } = await fetchLatestBaileysVersion()
