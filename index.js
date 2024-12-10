@@ -18,6 +18,7 @@ const axios = require('axios')
 const { File } = require('megajs')
 var { updateCMDStore, isbtnID, getCMDStore, getCmdForCmdId, connectdb, input, get, updb, updfb } = require("./lib/githubdb")
 const prefix = '.'
+const l = console.log
 
 const ownerNumber = ['94702940582']
 
