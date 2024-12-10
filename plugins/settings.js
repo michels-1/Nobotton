@@ -1,7 +1,7 @@
 const config = require('../config')
 const { cmd, commands } = require('../command')
 const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson} = require('../lib/functions')
-var { updateCMDStore,isbtnID,getCMDStore,getCmdForCmdId,connectdb,input,get, updb,updfb } = require("../lib/githubdb")
+var { updateCMDStore,isbtnID,getCMDStore,getCmdForCmdId,connectdb,input,get, updb,updfb } = require("../lib/database")
 
 var tesadtag =''
 if(config.LANG === 'SI') tesadtag = '*මට settings update කිරීමට text එකක් දෙන්න. !*'
@@ -100,9 +100,11 @@ buttonText: '*🔢 Reply below number*',
 sections
 }
 await conn.listMessage(from, listMessage,mek)
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
+} catch (e) {
+reply('*Error !!*')
+l(e)
+}
+})
 
 cmd({
     pattern: "settings",
@@ -151,9 +153,11 @@ buttonText: '*🔢 Reply below number*',
 sections
 }
 await conn.listMessage(from, listMessage,mek)
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
+} catch (e) {
+reply('*Error !!*')
+l(e)
+}
+})
 
 cmd({
     pattern: "apply",
@@ -225,9 +229,11 @@ buttonText: '*🔢 Reply below number*',
 sections
 }
 await conn.listMessage(from, listMessage,mek)
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
+} catch (e) {
+reply('*Error !!*')
+l(e)
+}
+})
 
 
 //============================================================================================================
@@ -269,9 +275,11 @@ if (indexToRemove !== -1) {
 await input("ANTI_LINK", array)
 await reply("*Anti link updated: " + q + "*")
 }
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
+} catch (e) {
+reply('*Error !!*')
+l(e)
+}
+})
 
 cmd({
     pattern: "antibot",
@@ -309,9 +317,11 @@ if (indexToRemove !== -1) {
 await input("ANTI_BOT", array)
 await reply("*Anti bots updated: " + q + "*")
 }
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
+} catch (e) {
+reply('*Error !!*')
+l(e)
+}
+})
 
 cmd({
     pattern: "antibad",
@@ -348,9 +358,11 @@ if (indexToRemove !== -1) {
 await input("ANTI_BAD", array)
 await reply("*Anti bad words updated: " + q + "*")
 }
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
+} catch (e) {
+reply('*Error !!*')
+l(e)
+}
+})
 
 cmd({
     pattern: "onlygroup",
@@ -381,9 +393,12 @@ if(gett === false) return await reply(alredy)
 await input("ONLY_GROUP", false)
 await reply("*Only group updated: " + q + "*")
 }
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
+} catch (e) {
+reply('*Error !!*')
+l(e)
+}
+
+})
 
 cmd({
     pattern: "lang",
@@ -399,9 +414,11 @@ await input("LANG", q)
 
 await reply("*Language updated: " + q + "*")
 
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
+} catch (e) {
+reply('*Error !!*')
+l(e)
+}
+})
 
 cmd({
     pattern: "uploadsz",
@@ -417,9 +434,11 @@ await input("MAX_SIZE", Number(q))
 
 await reply("*Max upload size updated: " + q + "*")
 
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
+} catch (e) {
+reply('*Error !!*')
+l(e)
+}
+})
 
 cmd({
     pattern: "alivemg",
@@ -435,9 +454,11 @@ await input("ALIVE", q)
 
 await reply("*Alive massage updated:* " + q )
 
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
+} catch (e) {
+reply('*Error !!*')
+l(e)
+}
+})
 
 cmd({
     pattern: "footertxt",
@@ -453,9 +474,11 @@ await input("FOOTER", q)
 
 await reply("*Footer updated:* " + q)
 
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
+} catch (e) {
+reply('*Error !!*')
+l(e)
+}
+})
 
 cmd({
     pattern: "setlogo",
@@ -471,10 +494,12 @@ await input("LOGO", q)
 
 await reply("*Logo updated: " + q + "*")
 
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
-    
+} catch (e) {
+reply('*Error !!*')
+l(e)
+}
+})
+
 var needus =''
 if(config.LANG === 'SI') needus = 'එය දත්ත සමුදාය නැවත සකසයි.'
 else needus = "It resets database." 
@@ -490,6 +515,8 @@ try{
     if (!isMe) return await reply(BOTOW)
    await updfb()
 return reply("Database reseted !!")
-    } catch (e) {
-        console.error(e);
-        reply(`${e}`);
+} catch (e) {
+reply(cantf)
+l(e)
+}
+})
