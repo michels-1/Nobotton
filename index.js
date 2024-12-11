@@ -41,12 +41,6 @@ const app = express();
 const port = process.env.PORT || 8000;
 //================================/
 async function connectToWA() {
-//==================MONGODB===========================
-
-//==============================================
-
-//==================================================
-
 console.log("Connecting ASITHA-MD 🧬...");
 const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/session/')
 var { version } = await fetchLatestBaileysVersion()
@@ -77,7 +71,6 @@ require("./plugins/" + plugin);
 console.log('Plugins installed successful ✅')
 await connectdb();
 await updb();
-await start_numrep_process();
 console.log('Bot connected to whatsapp ✅')
 
 let up = `*ASITHA-MD connected successful ✅`;
