@@ -89,7 +89,7 @@ rowId: '.antibot off'
 ]},
 ]
 const listMessage = {
-text: `┌───[🍭Zero-Two🍭]
+text: `┌───[Black-league-md]
 
      *GROUP SETTINGS*
 
@@ -142,7 +142,7 @@ rowId: '.lang SI'
 ]}
 ]
 const listMessage = {
-text: `┌───[🍭Zero-Two🍭]
+text: `┌───[BLACK-LEAGUE-MD]
 
      *BOT\'S SETTINGS*
 
@@ -218,7 +218,7 @@ rowId: '.setlogo ' + q
 ]},
 ]
 const listMessage = {
-text: `┌───[🍭Zero-Two🍭]
+text: `┌───[BLACK-LEAGUE-MD]
 
      *BOT\'S CONFIG*
 
